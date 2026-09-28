@@ -4,6 +4,7 @@ import { categories } from "@/lib/catalog";
 import { centsToInput } from "@/lib/money";
 import { AdminForm, type ActionResult } from "./form";
 import { Checkbox, Field } from "./ui";
+import { ImageFileInput } from "./image-file-input";
 
 export function ProductForm({
   action,
@@ -81,7 +82,7 @@ export function ProductForm({
               </ul>
             )}
             <Field label="Adicionar fotos" hint="JPG, PNG ou WEBP até 6 MB cada.">
-              <input name="images" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple className="admin-input file:mr-3 file:rounded file:border-0 file:bg-sand file:px-2 file:py-1" />
+              <ImageFileInput name="images" multiple />
             </Field>
           </div>
         </div>

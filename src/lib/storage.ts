@@ -5,6 +5,7 @@ import path from "node:path";
 
 export const UPLOAD_DIR = path.join(process.cwd(), ".data", "uploads");
 
+// Photos are downscaled in the browser before upload; this is a safety net.
 const MAX_BYTES = 6 * 1024 * 1024;
 const ALLOWED: Record<string, string> = {
   "image/jpeg": "jpg",

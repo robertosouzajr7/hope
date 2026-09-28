@@ -23,7 +23,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${fraunces.variable} ${manrope.variable} antialiased`}>
+    // suppressHydrationWarning: browser extensions (e.g. LanguageTool) add attributes to <html>.
+    <html lang="pt-BR" className={`${fraunces.variable} ${manrope.variable} antialiased`} suppressHydrationWarning>
       <body className="min-h-svh bg-ink text-cream">{children}</body>
     </html>
   );

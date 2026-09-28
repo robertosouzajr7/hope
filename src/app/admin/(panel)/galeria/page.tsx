@@ -5,6 +5,7 @@ import { getDb, schema } from "@/db";
 import { AdminForm, ConfirmButton, SubmitButton } from "@/components/admin/form";
 import { Empty, Field, PageHeader } from "@/components/admin/ui";
 import { deletePhoto, movePhoto, updatePhoto, uploadPhotos } from "./actions";
+import { ImageFileInput } from "@/components/admin/image-file-input";
 
 export const metadata = { title: "Galeria" };
 
@@ -20,7 +21,7 @@ export default async function GalleryAdminPage() {
         <AdminForm action={uploadPhotos} submitLabel="Enviar fotos" resetOnSuccess>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Fotos" hint="Selecione várias de uma vez. JPG, PNG ou WEBP até 6 MB.">
-              <input name="photos" type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" className="admin-input file:mr-3 file:rounded file:border-0 file:bg-sand file:px-2 file:py-1" />
+              <ImageFileInput name="photos" multiple />
             </Field>
             <Field label="Legenda" hint="Descreve a foto (acessibilidade e Google).">
               <input name="alt" placeholder="Ex.: Apresentação na IASD Central" className="admin-input" />

@@ -3,6 +3,7 @@ import { AdminForm } from "@/components/admin/form";
 import { Field, PageHeader } from "@/components/admin/ui";
 import { getSiteSettings } from "@/lib/queries";
 import { saveSiteSettings } from "../settings-actions";
+import { ImageFileInput } from "@/components/admin/image-file-input";
 
 export const metadata = { title: "Conteúdo do site" };
 
@@ -19,7 +20,7 @@ function ImageInput({ name, label, current, hint }: { name: string; label: strin
           )}
         </div>
         <div className="flex-1 space-y-2">
-          <input name={`${name}File`} type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="admin-input file:mr-3 file:rounded file:border-0 file:bg-sand file:px-2 file:py-1" />
+          <ImageFileInput name={`${name}File`} />
           <p className="text-xs text-ink/50">{hint}</p>
           {current && (
             <label className="flex items-center gap-2 text-xs text-red-700">
