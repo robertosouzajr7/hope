@@ -1,10 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
-import { single } from "@/content/site";
 
 // Sleeve + record that slides out and spins, a nod to the single's 80s pop aesthetic.
-export function Vinyl() {
+export function Vinyl({ title, name }: { title: string; name: string }) {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-md">
       <motion.div
@@ -35,9 +34,9 @@ export function Vinyl() {
         <div className="absolute inset-x-0 top-[50%] h-[3px] bg-ink/40" />
         <div className="absolute -right-[20%] top-[10%] size-[70%] rounded-full bg-cream/40 blur-2xl" />
         <div className="absolute inset-0 flex flex-col justify-between p-7">
-          <p className="text-[11px] uppercase tracking-[0.4em] text-ink/70">Vocal Hope</p>
+          <p className="text-[11px] uppercase tracking-[0.4em] text-ink/70">{name}</p>
           <p className="font-display text-4xl italic leading-[0.95] text-ink md:text-5xl">
-            {single.title}
+            {title}
           </p>
         </div>
       </div>

@@ -1,5 +1,3 @@
-import { site } from "@/content/site";
-
 type IconProps = { className?: string };
 
 export function InstagramIcon({ className }: IconProps) {
@@ -28,16 +26,18 @@ export function SpotifyIcon({ className }: IconProps) {
   );
 }
 
-export const socialLinks = [
-  { href: site.socials.instagram, label: "Instagram", Icon: InstagramIcon },
-  { href: site.socials.youtube, label: "YouTube", Icon: YoutubeIcon },
-  { href: site.socials.spotify, label: "Spotify", Icon: SpotifyIcon },
-];
+export type Socials = { instagram: string; youtube: string; spotify: string };
 
-export function SocialLinks({ className = "" }: { className?: string }) {
+export function SocialLinks({ socials, className = "" }: { socials: Socials; className?: string }) {
+  const links = [
+    { href: socials.instagram, label: "Instagram", Icon: InstagramIcon },
+    { href: socials.youtube, label: "YouTube", Icon: YoutubeIcon },
+    { href: socials.spotify, label: "Spotify", Icon: SpotifyIcon },
+  ].filter((l) => l.href);
+
   return (
     <ul className={`flex items-center gap-3 ${className}`}>
-      {socialLinks.map(({ href, label, Icon }) => (
+      {links.map(({ href, label, Icon }) => (
         <li key={label}>
           <a
             href={href}

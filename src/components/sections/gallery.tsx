@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
-import { photos } from "@/content/site";
 import { Photo } from "../photo";
 
 const shapes = ["aspect-[4/5]", "aspect-[3/4] mt-24", "aspect-square", "aspect-[4/5] mt-16", "aspect-[3/4]"];
 
 // Vertical scroll drives a horizontal photo strip while the section is pinned.
-export function Gallery() {
+export type GalleryPhoto = { id: number; url: string | null; alt: string };
+
+export function Gallery({ photos }: { photos: GalleryPhoto[] }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const trackRef = useRef<HTMLUListElement>(null);
@@ -42,9 +43,9 @@ export function Gallery() {
         </div>
         <motion.ul ref={trackRef} style={{ x }} className="flex w-max items-start gap-6 px-5 md:gap-10 md:px-10">
           {photos.map((photo, i) => (
-            <li key={i} className={`relative w-[70vw] shrink-0 md:w-[32vw] ${shapes[i % shapes.length]}`}>
+            <li key={photo.id} className={`relative w-[70vw] shrink-0 md:w-[32vw] ${shapes[i % shapes.length]}`}>
               <Photo
-                src={photo.src}
+                src={photo.url}
                 alt={photo.alt}
                 sizes="(min-width: 768px) 32vw, 70vw"
                 className="h-full w-full rounded-2xl"

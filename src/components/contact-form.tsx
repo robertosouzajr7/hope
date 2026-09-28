@@ -3,8 +3,7 @@
 import { useActionState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight, Check, Loader2 } from "lucide-react";
-import { sendContact, type ContactState } from "@/app/actions/contact";
-import { whatsappUrl } from "@/lib/whatsapp";
+import { sendContact, type ContactState } from "@/app/(site)/contact-action";
 
 const eventTypes = [
   "Culto / programação na igreja",
@@ -41,20 +40,6 @@ function Field({
 
 const inputClass =
   "w-full border-b border-cream/20 bg-transparent py-3 text-lg text-cream outline-none transition-colors placeholder:text-cream/25 focus:border-latte aria-[invalid=true]:border-latte";
-
-function fallbackMessage(v: Record<string, string>) {
-  return [
-    "Olá, Vocal Hope! Gostaria de convidar o grupo para um evento.",
-    "",
-    `Nome: ${v.name}`,
-    `Telefone: ${v.phone}`,
-    `E-mail: ${v.email}`,
-    `Evento: ${v.eventType}`,
-    `Data: ${v.date || "a definir"}`,
-    `Cidade: ${v.city}`,
-    v.message ? `\n${v.message}` : "",
-  ].join("\n");
-}
 
 export function ContactForm() {
   const [state, action, pending] = useActionState<ContactState, FormData>(
@@ -124,15 +109,6 @@ export function ContactForm() {
           {state.status === "error" && (
             <motion.p key="err" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-latte">
               {state.message}
-            </motion.p>
-          )}
-          {state.status === "fallback" && (
-            <motion.p key="fb" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-cream/70">
-              Não conseguimos enviar por e-mail agora.{" "}
-              <a href={whatsappUrl(fallbackMessage(v))} target="_blank" rel="noreferrer" className="text-latte underline underline-offset-4">
-                Envie pelo WhatsApp
-              </a>
-              .
             </motion.p>
           )}
         </AnimatePresence>

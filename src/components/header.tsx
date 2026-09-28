@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Menu, ShoppingBag, X } from "lucide-react";
-import { nav } from "@/content/site";
+import { nav } from "@/lib/nav";
 import { useCart } from "./cart";
-import { SocialLinks } from "./social-icons";
+import { SocialLinks, type Socials } from "./social-icons";
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
@@ -17,7 +17,7 @@ export function Logo({ className = "" }: { className?: string }) {
   );
 }
 
-export function Header() {
+export function Header({ socials }: { socials: Socials }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { count, open } = useCart();
@@ -33,8 +33,9 @@ export function Header() {
   // eslint-disable-next-line react-hooks/set-state-in-effect -- close the mobile menu on navigation
   useEffect(() => setMenuOpen(false), [pathname]);
 
-  // Product pages start on a light background, so the header needs its backdrop from the top.
-  const solid = scrolled || menuOpen || pathname.startsWith("/loja/");
+  // These pages start on a light background, so the header needs its backdrop from the top.
+  const lightPage = ["/loja/", "/checkout", "/pedido/"].some((p) => pathname.startsWith(p));
+  const solid = scrolled || menuOpen || lightPage;
 
   return (
     <>
@@ -130,7 +131,7 @@ export function Header() {
                 ))}
               </ul>
             </nav>
-            <SocialLinks className="text-cream" />
+            <SocialLinks socials={socials} className="text-cream" />
           </motion.div>
         )}
       </AnimatePresence>

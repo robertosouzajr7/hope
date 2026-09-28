@@ -4,12 +4,12 @@ import Link from "next/link";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowDown } from "lucide-react";
-import { heroPhoto, site } from "@/content/site";
+import type { SiteSettings } from "@/lib/settings-schema";
 import { Photo } from "../photo";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-export function Hero() {
+export function Hero({ site }: { site: SiteSettings }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.25]);
@@ -26,7 +26,7 @@ export function Hero() {
         transition={{ duration: 1.8, ease }}
         className="absolute inset-0"
       >
-        <Photo src={heroPhoto.src} alt={heroPhoto.alt} priority icon={null} className="h-full w-full" />
+        <Photo src={site.heroImage} alt={site.name} priority icon={null} className="h-full w-full" />
       </motion.div>
       <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/20 to-ink" />
 
@@ -45,7 +45,7 @@ export function Hero() {
         </motion.p>
 
         <h1 className="font-display text-[19vw] leading-[0.82] tracking-tight text-cream md:text-[13vw]">
-          {["Vocal", "Hope"].map((word, i) => (
+          {site.name.split(" ").slice(0, 2).map((word, i) => (
             <span key={word} className="block overflow-hidden">
               <motion.span
                 className={`block ${i === 1 ? "pl-[12vw] italic text-sand" : ""}`}

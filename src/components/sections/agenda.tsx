@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { upcomingEvents } from "@/content/events";
+import type { Event } from "@/db/schema";
 import { EventList } from "../event-list";
 import { Reveal, RevealText } from "../reveal";
 
-export function Agenda() {
-  const events = upcomingEvents().slice(0, 4);
-
+export function Agenda({ events }: { events: Event[] }) {
   return (
     <section id="agenda" className="bg-charcoal py-28 md:py-40">
       <div className="mx-auto max-w-7xl px-5 md:px-10">

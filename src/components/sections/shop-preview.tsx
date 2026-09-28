@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { products } from "@/content/products";
+import type { Product } from "@/db/schema";
 import { ProductCard } from "../product-card";
 import { Reveal, RevealText } from "../reveal";
 
-export function ShopPreview() {
+export function ShopPreview({ products }: { products: Product[] }) {
   const featured = products.filter((p) => p.featured).slice(0, 4);
+  if (featured.length === 0) return null;
 
   return (
     <section className="bg-cream py-28 text-ink md:py-40">

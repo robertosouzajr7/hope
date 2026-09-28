@@ -1,10 +1,11 @@
 import { Mail, MapPin, MessageCircle } from "lucide-react";
-import { site } from "@/content/site";
+import type { SiteSettings } from "@/lib/settings-schema";
+import { whatsappUrl } from "@/lib/whatsapp";
 import { ContactForm } from "../contact-form";
 import { Reveal, RevealText } from "../reveal";
 import { SocialLinks } from "../social-icons";
 
-export function Contact() {
+export function Contact({ site }: { site: SiteSettings }) {
   return (
     <section id="contato" className="relative overflow-hidden bg-espresso py-28 md:py-40">
       <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 size-[40rem] rounded-full bg-cocoa/50 blur-[160px]" />
@@ -31,7 +32,7 @@ export function Contact() {
               </li>
               <li className="flex items-center gap-3">
                 <MessageCircle className="size-5 text-latte" />
-                <a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noreferrer" className="hover:text-latte">
+                <a href={whatsappUrl(site.whatsapp)} target="_blank" rel="noreferrer" className="hover:text-latte">
                   Fale pelo WhatsApp
                 </a>
               </li>
@@ -40,7 +41,7 @@ export function Contact() {
                 {site.city}
               </li>
             </ul>
-            <SocialLinks className="mt-10 text-cream" />
+            <SocialLinks socials={site} className="mt-10 text-cream" />
           </Reveal>
         </div>
 

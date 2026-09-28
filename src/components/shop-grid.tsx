@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { categories, products, type ProductCategory } from "@/content/products";
+import type { Product } from "@/db/schema";
+import { categories } from "@/lib/catalog";
 import { ProductCard } from "./product-card";
 
-export function ShopGrid() {
-  const [filter, setFilter] = useState<ProductCategory | "todos">("todos");
+export function ShopGrid({ products }: { products: Product[] }) {
+  const [filter, setFilter] = useState<string>("todos");
   const visible = filter === "todos" ? products : products.filter((p) => p.category === filter);
   const available = categories.filter((c) => products.some((p) => p.category === c.value));
+
+  if (products.length === 0) {
+    return <p className="py-20 text-center text-ink/60">Novos produtos em breve.</p>;
+  }
 
   return (
     <>

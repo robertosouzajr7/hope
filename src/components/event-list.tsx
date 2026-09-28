@@ -1,5 +1,5 @@
 import { ArrowUpRight, MapPin } from "lucide-react";
-import type { Event } from "@/content/events";
+import type { Event } from "@/db/schema";
 import { formatDay, formatMonth, formatWeekday } from "@/lib/format";
 import { Reveal } from "./reveal";
 
@@ -9,7 +9,7 @@ export function EventList({ events, muted = false }: { events: Event[]; muted?: 
       {events.map((event, i) => {
         const Wrapper = event.link ? "a" : "div";
         return (
-          <Reveal key={`${event.date}-${event.title}`} delay={i * 0.06}>
+          <Reveal key={event.id} delay={i * 0.06}>
             <div className="border-b border-cream/15">
               <Wrapper
                 {...(event.link ? { href: event.link, target: "_blank", rel: "noreferrer" } : {})}

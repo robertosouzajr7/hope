@@ -8,10 +8,15 @@ import {
   useMemo,
   useState,
 } from "react";
-import { getProduct } from "@/content/products";
 
+// Snapshot of the product at the time it was added. Prices are re-checked
+// against the database when the order is created.
 export type CartItem = {
+  productId: number;
   slug: string;
+  name: string;
+  price: number;
+  image: string | null;
   size?: string;
   color?: string;
   quantity: number;
@@ -30,12 +35,12 @@ type CartContextValue = {
   clear: () => void;
 };
 
-const STORAGE_KEY = "vocal-hope:cart";
+const STORAGE_KEY = "vocal-hope:cart:v2";
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-export function itemKey(item: Pick<CartItem, "slug" | "size" | "color">) {
-  return [item.slug, item.size ?? "", item.color ?? ""].join("|");
+export function itemKey(item: Pick<CartItem, "productId" | "size" | "color">) {
+  return [item.productId, item.size ?? "", item.color ?? ""].join("|");
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -49,7 +54,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (saved) {
         const parsed: CartItem[] = JSON.parse(saved);
         // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring persisted state after hydration
-        setItems(parsed.filter((i) => getProduct(i.slug)));
+        setItems(parsed.filter((i) => typeof i.productId === "number" && i.quantity > 0));
       }
     } catch {
       // Storage unavailable or corrupted: start with an empty cart.
@@ -92,12 +97,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((current) => current.filter((i) => itemKey(i) !== key));
   }, []);
 
+  // Also wipes storage directly: a child's effect can run before the restore effect above.
+  const clear = useCallback(() => {
+    setItems([]);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const value = useMemo<CartContextValue>(() => {
     const count = items.reduce((sum, i) => sum + i.quantity, 0);
-    const total = items.reduce(
-      (sum, i) => sum + (getProduct(i.slug)?.price ?? 0) * i.quantity,
-      0,
-    );
+    const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
     return {
       items,
       count,
@@ -108,9 +120,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       add,
       setQuantity,
       remove,
-      clear: () => setItems([]),
+      clear,
     };
-  }, [items, isOpen, add, setQuantity, remove]);
+  }, [items, isOpen, add, setQuantity, remove, clear]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

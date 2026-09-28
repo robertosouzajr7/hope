@@ -1,53 +1,71 @@
-# Vocal Hope — site oficial
+# Vocal Hope — site oficial, loja e painel
 
-Portfólio, cartão de visitas e loja do **Vocal Hope**, grupo vocal de gospel contemporâneo de Salvador (BA), fundado em 2015.
+Portfólio, cartão de visitas e loja virtual do **Vocal Hope**, grupo vocal de gospel contemporâneo de Salvador (BA), fundado em 2015, com painel administrativo para a equipe.
 
-Feito com Next.js 16 (App Router), Tailwind CSS 4, Motion (animações) e Lenis (rolagem suave).
+Stack: Next.js 16 (App Router, Server Actions), Tailwind CSS 4, Motion, Lenis, Drizzle ORM + Postgres, Mercado Pago.
 
 ## Rodando localmente
 
 ```bash
 npm install
-cp .env.example .env.local   # opcional
-npm run dev                  # http://localhost:3000
+npm run dev          # http://localhost:3000
 ```
 
-## Páginas
+Sem nenhuma configuração, o projeto cria um banco embutido (PGlite) em `.data/`, com produtos e eventos de exemplo e um usuário de teste:
 
+- Painel: http://localhost:3000/admin
+- Login: `admin@vocalhope.local` / `vocalhope`
+
+Para começar do zero, apague a pasta `.data/`.
+
+## O que tem
+
+### Site público
 | Rota | Conteúdo |
 | --- | --- |
-| `/` | Hero, história, single *O Seu Amor Não Falha*, pilares, galeria, agenda, destaques da loja e formulário de agenda |
-| `/agenda` | Todas as apresentações (próximas e passadas) |
-| `/loja` | Catálogo com filtro por categoria |
-| `/loja/[slug]` | Página do produto com tamanho/cor e "Adicionar à sacola" |
+| `/` | Hero, história, música em destaque, pilares, galeria, agenda, loja e formulário de agenda |
+| `/agenda` | Próximas apresentações e anteriores |
+| `/loja`, `/loja/[slug]` | Catálogo com filtros e página de produto |
+| `/checkout` | Dados do cliente, entrega (envio ou retirada) e pagamento |
+| `/pedido/[código]` | Status do pedido para o cliente |
 
-## Onde editar o conteúdo
+### Painel administrativo (`/admin`)
+- **Visão geral**: vendas do mês, gráfico dos últimos 30 dias, pedidos pendentes, estoque baixo, próximos shows.
+- **Vendas**: lista com filtros e busca, detalhe do pedido, mudança de status (pago, enviado, entregue, cancelado), código de rastreio, WhatsApp do cliente, registro de pagamento recebido por fora (Pix, dinheiro…).
+- **Pagamentos**: transações do Mercado Pago e manuais, total recebido no mês e por forma de pagamento.
+- **Produtos**: cadastro com fotos, preço, tamanhos, cores, estoque, destaque e visibilidade.
+- **Configurações da loja**: frete fixo, retirada em Salvador, aviso no topo da loja.
+- **Conteúdo do site**: textos, foto de capa e da seção "sobre", música em destaque (links do YouTube/Spotify), pilares, influências, contatos e redes sociais.
+- **Agenda de shows**: eventos publicados no site.
+- **Pedidos de agenda**: convites enviados pelo formulário do site, com status e resposta rápida pelo WhatsApp.
+- **Galeria de fotos**: upload, legenda e ordem das fotos.
+- **Usuários**: acessos da equipe e troca de senha.
 
-Todo o conteúdo fica em `src/content/`, sem precisar mexer nos componentes:
+### Estoque
+O estoque baixa quando o pagamento é aprovado (Mercado Pago ou registro manual) e volta quando o pedido é cancelado ou estornado. Deixe o estoque vazio para produtos sob encomenda.
 
-- **`site.ts`**: nome, textos, e-mail, WhatsApp, redes sociais, influências, fotos do grupo e IDs do YouTube/Spotify do single (preenchidos, os players aparecem no site).
-- **`events.ts`**: agenda de shows. Eventos passados saem sozinhos da lista de próximos (a página se atualiza de hora em hora).
-- **`products.ts`**: produtos da loja (preço em centavos, tamanhos, cores, foto).
+## Pagamentos (Mercado Pago)
 
-### Fotos
+1. Crie uma aplicação em https://www.mercadopago.com.br/developers/panel/app e copie o **Access Token** de produção para `MERCADOPAGO_ACCESS_TOKEN`.
+2. Em **Webhooks**, cadastre `https://SEU-DOMINIO/api/webhooks/mercadopago` com o evento **Pagamentos** e copie a assinatura secreta para `MERCADOPAGO_WEBHOOK_SECRET`.
 
-Coloque as imagens em `public/images/` (ex.: `public/images/hero.jpg`, `public/images/loja/caneca.jpg`) e aponte o `src`/`image` correspondente para `/images/...`. Enquanto uma foto não é definida, o site mostra um placeholder na paleta do grupo.
+O cliente é levado ao Checkout Pro (Pix, cartão, boleto). O status do pedido é atualizado pelo webhook e também quando o cliente volta ao site. Use as credenciais de teste do Mercado Pago para simular compras.
 
-## Loja
+Sem o token configurado, o pedido é registrado normalmente e o cliente combina o pagamento pelo WhatsApp. A equipe marca o pagamento como recebido no painel.
 
-A sacola fica salva no navegador. O pedido é finalizado pelo **WhatsApp**: o botão "Finalizar pedido" abre uma conversa com os itens, tamanhos, cores e o total já preenchidos. Frete e pagamento (Pix/cartão) são combinados na conversa. Dá para integrar Mercado Pago ou Stripe depois.
+## Deploy (Vercel)
 
-## Formulário de agenda
+1. Crie um banco Postgres (ex.: Neon ou Supabase) e defina `DATABASE_URL`.
+2. Crie um Blob Store na Vercel (Storage → Blob). O `BLOB_READ_WRITE_TOKEN` é adicionado automaticamente.
+3. Defina `NEXT_PUBLIC_SITE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` e as variáveis do Mercado Pago.
+4. Faça o deploy. O `npm run build` aplica as migrações, cria o conteúdo inicial e o primeiro administrador.
 
-O formulário usa uma Server Action (`src/app/actions/contact.ts`) com validação e proteção anti-spam (honeypot).
+Depois do primeiro acesso, troque a senha em **Usuários** e remova `ADMIN_PASSWORD` das variáveis.
 
-- Com `RESEND_API_KEY` e `CONTACT_EMAIL_TO` configurados, o pedido chega por e-mail via [Resend](https://resend.com).
-- Sem essas variáveis, o visitante é direcionado ao WhatsApp com a mensagem já preenchida.
+## Banco de dados
 
-## Variáveis de ambiente
+- Esquema: `src/db/schema.ts`
+- Após alterar o esquema: `npm run db:generate` (gera a migração em `drizzle/`) e `npm run db:migrate`
+- Explorar os dados: `npm run db:studio`
 
-Veja `.env.example`.
-
-## Deploy
-
-Recomendado: [Vercel](https://vercel.com). Importe o repositório, configure as variáveis de ambiente e publique.
+Todas as variáveis estão descritas em `.env.example`.

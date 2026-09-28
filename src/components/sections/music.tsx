@@ -1,9 +1,17 @@
-import { single, site } from "@/content/site";
+import type { SiteSettings } from "@/lib/settings-schema";
 import { Reveal, RevealText } from "../reveal";
 import { SpotifyIcon, YoutubeIcon } from "../social-icons";
 import { Vinyl } from "./vinyl";
 
-export function Music() {
+export function Music({ site }: { site: SiteSettings }) {
+  const single = {
+    title: site.singleTitle,
+    year: site.singleYear,
+    description: site.singleDescription,
+    youtubeId: site.singleYoutubeId,
+    spotifyTrackId: site.singleSpotifyTrackId,
+  };
+
   return (
     <section id="musica" className="relative overflow-hidden bg-ink py-28 md:py-40">
       {/* Retro 80s horizon grid */}
@@ -36,7 +44,7 @@ export function Music() {
           </Reveal>
           <Reveal delay={0.3} className="mt-10 flex flex-wrap gap-3">
             <a
-              href={single.spotifyTrackId ? `https://open.spotify.com/track/${single.spotifyTrackId}` : site.socials.spotify}
+              href={single.spotifyTrackId ? `https://open.spotify.com/track/${single.spotifyTrackId}` : site.spotify}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-3 rounded-full bg-cream px-6 py-4 text-sm font-semibold text-ink transition-colors hover:bg-latte"
@@ -44,7 +52,7 @@ export function Music() {
               <SpotifyIcon className="size-5" /> Ouvir no Spotify
             </a>
             <a
-              href={single.youtubeId ? `https://www.youtube.com/watch?v=${single.youtubeId}` : site.socials.youtube}
+              href={single.youtubeId ? `https://www.youtube.com/watch?v=${single.youtubeId}` : site.youtube}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-3 rounded-full border border-cream/30 px-6 py-4 text-sm font-semibold text-cream transition-colors hover:border-cream hover:bg-cream/10"
@@ -55,7 +63,7 @@ export function Music() {
         </div>
 
         <Reveal delay={0.1} y={80}>
-          <Vinyl />
+          <Vinyl title={single.title} name={site.name} />
         </Reveal>
       </div>
 

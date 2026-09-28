@@ -1,16 +1,18 @@
 import Link from "next/link";
-import { nav, site } from "@/content/site";
+import { nav } from "@/lib/nav";
+import type { SiteSettings } from "@/lib/settings-schema";
+import { whatsappUrl } from "@/lib/whatsapp";
 import { Logo } from "./header";
 import { SocialLinks } from "./social-icons";
 
-export function Footer() {
+export function Footer({ site }: { site: SiteSettings }) {
   return (
     <footer className="relative overflow-hidden border-t border-cream/10 bg-ink pt-20 text-cream">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 md:grid-cols-[1.5fr_1fr_1fr] md:px-10">
         <div className="space-y-5">
           <Logo className="text-4xl" />
           <p className="max-w-sm text-cream/60">{site.tagline}</p>
-          <SocialLinks />
+          <SocialLinks socials={site} />
         </div>
         <nav aria-label="Rodapé">
           <p className="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Navegue</p>
@@ -33,7 +35,7 @@ export function Footer() {
               </a>
             </li>
             <li>
-              <a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noreferrer" className="hover:text-latte">
+              <a href={whatsappUrl(site.whatsapp)} target="_blank" rel="noreferrer" className="hover:text-latte">
                 WhatsApp
               </a>
             </li>

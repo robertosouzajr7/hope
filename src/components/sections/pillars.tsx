@@ -1,7 +1,7 @@
-import { pillars } from "@/content/site";
+import type { SiteSettings } from "@/lib/settings-schema";
 import { Reveal, RevealText } from "../reveal";
 
-export function Pillars() {
+export function Pillars({ pillars }: { pillars: SiteSettings["pillars"] }) {
   return (
     <section className="bg-sand py-28 text-ink md:py-40">
       <div className="mx-auto max-w-7xl px-5 md:px-10">

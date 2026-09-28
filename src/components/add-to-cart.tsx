@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ShoppingBag } from "lucide-react";
-import type { Product } from "@/content/products";
+import type { Product } from "@/db/schema";
 import { useCart } from "./cart";
 
 function OptionGroup({
@@ -44,30 +44,36 @@ function OptionGroup({
 
 export function AddToCart({ product }: { product: Product }) {
   const { add } = useCart();
-  const [size, setSize] = useState(product.sizes?.[1] ?? product.sizes?.[0] ?? "");
-  const [color, setColor] = useState(product.colors?.[0] ?? "");
+  const [size, setSize] = useState(product.sizes[1] ?? product.sizes[0] ?? "");
+  const [color, setColor] = useState(product.colors[0] ?? "");
+  const soldOut = product.stock === 0;
 
   return (
     <div>
-      {product.sizes && (
+      {product.sizes.length > 0 && (
         <OptionGroup label="Tamanho" options={product.sizes} value={size} onChange={setSize} />
       )}
-      {product.colors && (
+      {product.colors.length > 0 && (
         <OptionGroup label="Cor" options={product.colors} value={color} onChange={setColor} />
       )}
       <button
         type="button"
+        disabled={soldOut}
         onClick={() =>
           add({
+            productId: product.id,
             slug: product.slug,
+            name: product.name,
+            price: product.price,
+            image: product.images[0] ?? null,
             size: size || undefined,
             color: color || undefined,
           })
         }
-        className="mt-10 inline-flex w-full items-center justify-center gap-3 rounded-full bg-ink px-8 py-5 text-sm font-semibold tracking-wide text-cream transition-colors hover:bg-cocoa md:w-auto"
+        className="mt-10 inline-flex w-full items-center justify-center gap-3 rounded-full bg-ink px-8 py-5 text-sm font-semibold tracking-wide text-cream transition-colors hover:bg-cocoa disabled:cursor-not-allowed disabled:opacity-40 md:w-auto"
       >
         <ShoppingBag className="size-4" />
-        Adicionar à sacola
+        {soldOut ? "Esgotado" : "Adicionar à sacola"}
       </button>
     </div>
   );
