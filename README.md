@@ -53,19 +53,40 @@ O cliente é levado ao Checkout Pro (Pix, cartão, boleto). O status do pedido �
 
 Sem o token configurado, o pedido é registrado normalmente e o cliente combina o pagamento pelo WhatsApp. A equipe marca o pagamento como recebido no painel.
 
+## Deploy em VPS com EasyPanel
+
+O projeto tem um `Dockerfile` pronto. As migrações do banco e o conteúdo inicial rodam sozinhos quando o container inicia.
+
+1. **Postgres**: no projeto do EasyPanel, clique em **+ Service → Postgres**. Anote a **Internal Connection URL** (algo como `postgres://postgres:SENHA@vocal-hope_db:5432/vocal-hope`).
+2. **App**: clique em **+ Service → App** e, em **Source**, escolha **GitHub** com o repositório `robertosouzajr7/hope` e o branch desejado. Em **Build**, escolha **Dockerfile** (caminho `Dockerfile`).
+3. **Environment**: cole as variáveis abaixo, ajustando os valores:
+   ```
+   DATABASE_URL=postgres://postgres:SENHA@vocal-hope_db:5432/vocal-hope
+   SITE_URL=https://vocalhope.com.br
+   ADMIN_EMAIL=seu@email.com
+   ADMIN_PASSWORD=uma-senha-forte
+   MERCADOPAGO_ACCESS_TOKEN=
+   MERCADOPAGO_WEBHOOK_SECRET=
+   ```
+4. **Mounts**: adicione um **Volume** com *Mount Path* `/app/.data`. É onde ficam as fotos enviadas pelo painel. Sem ele, as fotos somem a cada deploy.
+5. **Domains**: adicione o domínio (ex.: `vocalhope.com.br`) apontando para a **porta 3000** e ative HTTPS. No seu provedor de domínio, crie um registro **A** apontando para o IP da VPS.
+6. Clique em **Deploy**. Nos logs deve aparecer `[vocal-hope] Banco de dados pronto.`
+
+Depois do primeiro acesso ao painel, troque a senha em **Usuários** e apague `ADMIN_PASSWORD` das variáveis. Para publicar novas versões, faça push no GitHub e clique em **Deploy** (ou ative o deploy automático).
+
+Backup: agende o backup do serviço Postgres no EasyPanel e faça cópia do volume `/app/.data`.
+
 ## Deploy (Vercel)
 
 1. Crie um banco Postgres (ex.: Neon ou Supabase) e defina `DATABASE_URL`.
 2. Crie um Blob Store na Vercel (Storage → Blob). O `BLOB_READ_WRITE_TOKEN` é adicionado automaticamente.
-3. Defina `NEXT_PUBLIC_SITE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` e as variáveis do Mercado Pago.
-4. Faça o deploy. O `npm run build` aplica as migrações, cria o conteúdo inicial e o primeiro administrador.
-
-Depois do primeiro acesso, troque a senha em **Usuários** e remova `ADMIN_PASSWORD` das variáveis.
+3. Defina `SITE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` e as variáveis do Mercado Pago.
+4. Faça o deploy. As migrações rodam quando o servidor inicia.
 
 ## Banco de dados
 
 - Esquema: `src/db/schema.ts`
-- Após alterar o esquema: `npm run db:generate` (gera a migração em `drizzle/`) e `npm run db:migrate`
+- Após alterar o esquema: `npm run db:generate` (gera a migração em `drizzle/`). Ela é aplicada automaticamente no próximo start do servidor (ou manualmente com `npm run db:migrate`).
 - Explorar os dados: `npm run db:studio`
 
 Todas as variáveis estão descritas em `.env.example`.

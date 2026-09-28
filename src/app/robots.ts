@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { getBaseUrl } from "@/lib/base-url";
 
-const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+export const dynamic = "force-dynamic";
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
   return {
     rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/checkout", "/pedido"] },
-    sitemap: `${base}/sitemap.xml`,
+    sitemap: `${await getBaseUrl()}/sitemap.xml`,
   };
 }

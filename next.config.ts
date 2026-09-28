@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Self-contained server for the Docker image (see Dockerfile).
+  output: "standalone",
+  outputFileTracingIncludes: {
+    // Migrations are applied at startup; the WASM build is needed when no DATABASE_URL is set.
+    "/*": ["./drizzle/**/*", "./node_modules/@electric-sql/pglite/dist/**/*"],
+  },
   // PGlite ships a WASM build of Postgres that must be loaded from node_modules at runtime.
   serverExternalPackages: ["@electric-sql/pglite"],
   images: {
@@ -10,7 +16,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      // Image uploads from the admin panel.
+      // Photos are optimized in the browser before upload; this leaves headroom.
       bodySizeLimit: "8mb",
     },
   },

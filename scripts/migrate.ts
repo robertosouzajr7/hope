@@ -1,6 +1,5 @@
-// Applies pending migrations and seeds an empty database.
-// Runs before `next build`; without DATABASE_URL it does nothing, since the
-// local embedded database migrates itself on first use.
+// Applies pending migrations and seeds an empty database without starting the
+// site. Optional: the server already does this on startup (src/instrumentation.ts).
 import path from "node:path";
 
 async function main() {

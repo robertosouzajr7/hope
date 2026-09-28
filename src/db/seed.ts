@@ -3,7 +3,7 @@
 import { count } from "drizzle-orm";
 import { defaultShopSettings, defaultSiteSettings } from "../lib/settings-schema";
 import { hashPassword } from "../lib/password";
-import type { Database } from "./index";
+import type { Database } from "./client";
 import { events, products, settings, users } from "./schema";
 
 const demoProducts: (typeof products.$inferInsert)[] = [
