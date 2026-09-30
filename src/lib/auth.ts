@@ -1,7 +1,7 @@
 import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import { cache } from "react";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { and, eq, gt, lt, ne } from "drizzle-orm";
 import { getDb, schema } from "@/db";
@@ -15,6 +15,16 @@ function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
+// Marks the cookie Secure only when the visitor is on HTTPS (directly or behind
+// a proxy like EasyPanel's Traefik). A Secure cookie is dropped on plain HTTP,
+// which would make every login bounce back to the login page.
+async function isHttps() {
+  const h = await headers();
+  const proto = h.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  if (proto) return proto === "https";
+  return (process.env.SITE_URL || "").startsWith("https://");
+}
+
 export async function createSession(userId: number) {
   const db = await getDb();
   const token = randomBytes(32).toString("base64url");
@@ -25,7 +35,7 @@ export async function createSession(userId: number) {
 
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: await isHttps(),
     sameSite: "lax",
     path: "/",
     expires: expiresAt,

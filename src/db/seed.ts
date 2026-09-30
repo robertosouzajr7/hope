@@ -1,8 +1,8 @@
 // Fills an empty database with the initial content and the first admin user.
 // Safe to run repeatedly: each part only runs when its table is empty.
-import { count } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { defaultShopSettings, defaultSiteSettings } from "../lib/settings-schema";
-import { hashPassword } from "../lib/password";
+import { hashPassword, verifyPassword } from "../lib/password";
 import type { Database } from "./client";
 import { events, products, settings, users } from "./schema";
 
@@ -106,22 +106,47 @@ export async function seed(db: Database, { log = false } = {}) {
     say("✓ Eventos de exemplo criados");
   }
 
-  if (await isEmpty(db, users)) {
-    const email = process.env.ADMIN_EMAIL;
-    const password = process.env.ADMIN_PASSWORD;
-    const isLocal = !process.env.DATABASE_URL;
-    if (email && password) {
-      await db.insert(users).values({ name: "Administrador", email: email.toLowerCase(), passwordHash: await hashPassword(password) });
-      say(`✓ Usuário administrador criado: ${email}`);
-    } else if (isLocal) {
-      await db.insert(users).values({
-        name: "Administrador",
-        email: "admin@vocalhope.local",
-        passwordHash: await hashPassword("vocalhope"),
-      });
-      console.log("[vocal-hope] Admin local criado: admin@vocalhope.local / vocalhope");
+  await ensureAdmin(db, say);
+}
+
+// Strips quotes that sometimes end up in values pasted into hosting panels.
+function envValue(name: string) {
+  const raw = process.env[name]?.trim();
+  if (!raw) return undefined;
+  const quoted = /^(["'])(.*)\1$/.exec(raw);
+  return quoted ? quoted[2] : raw;
+}
+
+// ADMIN_EMAIL / ADMIN_PASSWORD are the source of truth for that account while
+// they are set: the user is created if missing and its password is reset to
+// match. Remove ADMIN_PASSWORD after the first login to manage it in the panel.
+async function ensureAdmin(db: Database, say: (msg: string) => void) {
+  const email = envValue("ADMIN_EMAIL")?.toLowerCase();
+  const password = envValue("ADMIN_PASSWORD");
+
+  if (email && password) {
+    const [existing] = await db.select().from(users).where(eq(users.email, email));
+    if (!existing) {
+      await db.insert(users).values({ name: "Administrador", email, passwordHash: await hashPassword(password) });
+      console.log(`[vocal-hope] Usuário administrador criado: ${email}`);
+    } else if (!(await verifyPassword(password, existing.passwordHash))) {
+      await db.update(users).set({ passwordHash: await hashPassword(password) }).where(eq(users.id, existing.id));
+      console.log(`[vocal-hope] Senha de ${email} redefinida a partir de ADMIN_PASSWORD.`);
     } else {
-      console.warn("[vocal-hope] Nenhum usuário admin. Defina ADMIN_EMAIL e ADMIN_PASSWORD e rode npm run db:migrate.");
+      say(`✓ Administrador ${email} já existe`);
     }
+    return;
+  }
+
+  if (!(await isEmpty(db, users))) return;
+  if (!process.env.DATABASE_URL) {
+    await db.insert(users).values({
+      name: "Administrador",
+      email: "admin@vocalhope.local",
+      passwordHash: await hashPassword("vocalhope"),
+    });
+    console.log("[vocal-hope] Admin local criado: admin@vocalhope.local / vocalhope");
+  } else {
+    console.warn("[vocal-hope] Nenhum usuário admin. Defina ADMIN_EMAIL e ADMIN_PASSWORD e reinicie o app.");
   }
 }

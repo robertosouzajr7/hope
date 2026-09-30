@@ -68,6 +68,8 @@ O projeto tem um `Dockerfile` pronto. As migrações do banco e o conteúdo inic
    MERCADOPAGO_ACCESS_TOKEN=
    MERCADOPAGO_WEBHOOK_SECRET=
    ```
+   Se algum valor tiver `#`, coloque entre aspas (ex.: `ADMIN_PASSWORD="minha#senha"`), senão o `#` e o que vem depois são ignorados.
+   Enquanto `ADMIN_EMAIL` e `ADMIN_PASSWORD` estiverem definidas, esse usuário é criado e a senha dele é redefinida para o valor da variável a cada início do app.
 4. **Mounts**: adicione um **Volume** com *Mount Path* `/app/.data`. É onde ficam as fotos enviadas pelo painel. Sem ele, as fotos somem a cada deploy.
 5. **Domains**: adicione o domínio (ex.: `vocalhope.com.br`) apontando para a **porta 3000** e ative HTTPS. No seu provedor de domínio, crie um registro **A** apontando para o IP da VPS.
 6. Clique em **Deploy**. Nos logs deve aparecer `[vocal-hope] Banco de dados pronto.`

@@ -21,18 +21,27 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
     return { error: "Muitas tentativas. Aguarde alguns minutos e tente novamente.", email };
   }
 
-  const db = await getDb();
-  const [user] = await db.select().from(schema.users).where(eq(schema.users.email, email));
-  const valid = user ? await verifyPassword(password, user.passwordHash) : false;
+  try {
+    const db = await getDb();
+    const [user] = await db.select().from(schema.users).where(eq(schema.users.email, email));
+    const valid = user ? await verifyPassword(password, user.passwordHash) : false;
 
-  if (!user || !valid) {
-    const count = (record?.count ?? 0) + 1;
-    attempts.set(email, { count, until: count >= 5 ? Date.now() + 10 * 60 * 1000 : 0 });
-    return { error: "E-mail ou senha incorretos.", email };
+    if (!user || !valid) {
+      const count = (record?.count ?? 0) + 1;
+      attempts.set(email, { count, until: count >= 5 ? Date.now() + 10 * 60 * 1000 : 0 });
+      console.warn(`[vocal-hope] Login recusado para ${email}: ${user ? "senha incorreta" : "usuário não existe"}.`);
+      return { error: "E-mail ou senha incorretos.", email };
+    }
+
+    attempts.delete(email);
+    await createSession(user.id);
+  } catch (error) {
+    console.error("[vocal-hope] Erro ao fazer login:", error);
+    return {
+      error: "Erro no servidor ao entrar (verifique a conexão com o banco de dados nos logs do app).",
+      email,
+    };
   }
-
-  attempts.delete(email);
-  await createSession(user.id);
   redirect(next.startsWith("/admin") ? next : "/admin");
 }
 
