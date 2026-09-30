@@ -34,16 +34,6 @@ export function Hero({ site }: { site: SiteSettings }) {
         style={{ y: titleY, opacity: fade }}
         className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-5 pb-16 md:px-10 md:pb-24"
       >
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 1, ease }}
-          className="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.35em] text-sand/80"
-        >
-          <span className="h-px w-10 bg-latte" />
-          Gospel contemporâneo · {site.city}
-        </motion.p>
-
         <h1 className="font-display text-[19vw] leading-[0.82] tracking-tight text-cream md:text-[13vw]">
           {site.name.split(" ").slice(0, 2).map((word, i) => (
             <span key={word} className="block overflow-hidden">

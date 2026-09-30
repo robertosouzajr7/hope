@@ -30,7 +30,7 @@ export default async function Home() {
     <>
       <Hero site={site} />
       <Marquee
-        items={["Harmonia", "Groove", "Swing", "Esperança", "Gospel contemporâneo"]}
+        items={["Harmonia", "Groove", "Esperança", "Gospel contemporâneo"]}
         className="border-y border-cream/10 bg-ink text-cream"
       />
       <About site={site} />
